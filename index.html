@@ -5,57 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My AI Video Generator</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #111;
-            color: white;
-            text-align: center;
-            padding: 50px;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #222;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0px 0px 15px rgba(255,255,255,0.1);
-        }
+        body { font-family: Arial, sans-serif; background-color: #111; color: white; text-align: center; padding: 50px; }
+        .container { max-width: 600px; margin: auto; background: #222; padding: 30px; border-radius: 10px; box-shadow: 0px 0px 15px rgba(255,255,255,0.1); }
         h1 { color: #ff4757; }
-        textarea {
-            width: 100%;
-            height: 100px;
-            background: #333;
-            color: white;
-            border: 1px solid #444;
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 16px;
-        }
-        button {
-            background: #2ed573;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 18px;
-            cursor: pointer;
-            border-radius: 5px;
-            margin-top: 15px;
-            font-weight: bold;
-        }
+        textarea { width: 100%; height: 100px; background: #333; color: white; border: 1px solid #444; padding: 10px; border-radius: 5px; font-size: 16px; user-select: text !important; }
+        button { background: #2ed573; color: white; border: none; padding: 12px 25px; font-size: 18px; cursor: pointer; border-radius: 5px; margin-top: 15px; font-weight: bold; }
         button:hover { background: #26af5f; }
-        .video-box {
-            margin-top: 30px;
-            border: 2px dashed #555;
-            padding: 40px;
-            border-radius: 5px;
-            color: #888;
-        }
+        .video-box { margin-top: 30px; border: 2px dashed #555; padding: 20px; border-radius: 5px; color: #888; min-height: 150px; display: flex; align-items: center; justify-content: center; }
+        video { width: 100%; border-radius: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>నా సొంత AI వీడియో జనరేటర్</h1>
+    <h1>నా సొంత AI व्हिडिओ జనరేటర్</h1>
     <p>మీ యూట్యూబ్ కథ కోసం ప్రాంప్ట్ ఇక్కడ రాయండి:</p>
     <textarea id="prompt" placeholder="ఉదాహరణకు: A cute boy playing in the rain..."></textarea>
     <br>
@@ -67,18 +30,37 @@
 </div>
 
 <script>
-    function generateVideo() {
+    async function generateVideo() {
         var promptText = document.getElementById("prompt").value;
         if(promptText == "") {
             alert("దయచేసి మొదట ప్రాంప్ట్ టైప్ చేయండి!");
             return;
         }
-        document.getElementById("output").innerHTML = "⏳ ఏఐ సర్వర్ కనెక్ట్ అవుతోంది... దయచేసి వేచి ఉండండి...";
         
-        // భవిష్యత్తులో మనం ఇక్కడే ఉచిత API కీని కనెక్ట్ చేస్తాము
-        setTimeout(function() {
-            document.getElementById("output").innerHTML = "❌ మీ సర్వర్ కనెక్ట్ అయింది, కానీ API కీ ఇంకా సెట్ చేయలేదు. తదుపరి స్టెప్ ఫాలో అవ్వండి!";
-        }, 3000);
+        var outputBox = document.getElementById("output");
+        outputBox.innerHTML = "⏳ మీ ఉచిత ఏఐ సర్వర్ కనెక్ట్ అయింది... వీడియో తయారవుతోంది (1-2 నిమిషాలు పట్టవచ్చు)...";
+
+        try {
+            // కరెక్ట్ చేసిన అఫీషియల్ ఉచిత వీడియో మోడల్ లింక్
+            const response = await fetch("https://api-inference.huggingface.co/models/alibaba-pai/CogVideoX-Fun-V1.1-2b-InP", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ inputs: promptText })
+            });
+
+            if (!response.ok) {
+                throw new Error("సర్వర్ ప్రస్తుతం బిజీగా ఉంది లేదా రీఫ్రెష్ అవుతోంది. దయచేసి మళ్లీ ప్రయత్నించండి.");
+            }
+
+            const blob = await response.blob();
+            const videoUrl = URL.createObjectURL(blob);
+            outputBox.innerHTML = <video src="${videoUrl}" controls autoplay loop></video><br><a href="${videoUrl}" download="ai_video.mp4" style="color:#2ed573; text-decoration:none; font-weight:bold; margin-top:10px; display:inline-block;">📥 వీడియో డౌన్‌లోడ్ చేసుకోండి</a>;
+            
+        } catch (error) {
+            outputBox.innerHTML = "❌ ఎర్రర్: " + error.message + "<br><br>మళ్లీ ప్రయత్నించడానికి బటన్ నొక్కండి.";
+        }
     }
 </script>
 
