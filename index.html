@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My AI Video Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #111;
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #222;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 15px rgba(255,255,255,0.1);
+        }
+        h1 { color: #ff4757; }
+        textarea {
+            width: 100%;
+            height: 100px;
+            background: #333;
+            color: white;
+            border: 1px solid #444;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background: #2ed573;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 15px;
+            font-weight: bold;
+        }
+        button:hover { background: #26af5f; }
+        .video-box {
+            margin-top: 30px;
+            border: 2px dashed #555;
+            padding: 40px;
+            border-radius: 5px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>నా సొంత AI వీడియో జనరేటర్</h1>
+    <p>మీ యూట్యూబ్ కథ కోసం ప్రాంప్ట్ ఇక్కడ రాయండి:</p>
+    <textarea id="prompt" placeholder="ఉదాహరణకు: A cute boy playing in the rain..."></textarea>
+    <br>
+    <button onclick="generateVideo()">Generate Video</button>
+
+    <div class="video-box" id="output">
+        మీ వీడియో ఇక్కడ తయారవుతుంది...
+    </div>
+</div>
+
+<script>
+    function generateVideo() {
+        var promptText = document.getElementById("prompt").value;
+        if(promptText == "") {
+            alert("దయచేసి మొదట ప్రాంప్ట్ టైప్ చేయండి!");
+            return;
+        }
+        document.getElementById("output").innerHTML = "⏳ ఏఐ సర్వర్ కనెక్ట్ అవుతోంది... దయచేసి వేచి ఉండండి...";
+        
+        // భవిష్యత్తులో మనం ఇక్కడే ఉచిత API కీని కనెక్ట్ చేస్తాము
+        setTimeout(function() {
+            document.getElementById("output").innerHTML = "❌ మీ సర్వర్ కనెక్ట్ అయింది, కానీ API కీ ఇంకా సెట్ చేయలేదు. తదుపరి స్టెప్ ఫాలో అవ్వండి!";
+        }, 3000);
+    }
+</script>
+
+</body>
+</html>
