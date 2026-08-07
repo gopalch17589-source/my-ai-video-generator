@@ -2,7 +2,7 @@ export default async function handler(req, res) {
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
     try {
         const { prompttext } = req.body;
-       const response = await fetch("api-inference.huggingface.co/models/stabilityai/stable-video-diffusion-img2vid-xt", {
+        const response = await fetch("https://api-inference.huggingface.co/models/stabilityai/stable-video-diffusion-img2vid-xt", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
