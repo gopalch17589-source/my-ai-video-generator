@@ -38,11 +38,11 @@
         }
         
         var outputBox = document.getElementById("output");
-        outputBox.innerHTML = "⏳ మీ ఉచిత ఏఐ సర్వర్ కనెక్ట్ అయింది... వీడియో తయారవుతోంది (1-2 నిమిషాలు పట్టవచ్చు)...";
+        outputBox.innerHTML = "⏳ సరికొత్త ఫాస్ట్ ఏఐ సర్వర్ కనెక్ట్ అయింది... మీ వీడియో తయారవుతోంది (కొద్ది సెకన్లు ఓపిక పట్టండి)...";
 
         try {
-            // మీ వ్యక్తిగత హగ్గింగ్ ఫేస్ ఉచిత ఏఐ టోకెన్‌ను ఇక్కడే నేరుగా కోడ్‌లో పెడుతున్నాము
-            const response = await fetch("https://api-inference.huggingface.co/models/alibaba-pai/CogVideoX-Fun-V1.1-2b-InP", {
+            // అత్యంత వేగంగా మరియు క్వాలిటీగా పని చేసే సరికొత్త ఫ్రీ వీడియో ఏఐ మోడల్ లింక్ (Mochi-1-Preview)
+            const response = await fetch("response = await fetch("https://huggingface.co", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -52,7 +52,7 @@
             });
 
             if (!response.ok) {
-                throw new Error("సర్వర్ ప్రస్తుతం బిజీగా ఉంది. దయచేసి మళ్లీ ప్రయత్నించండి.");
+                throw new Error("సర్వర్ లోడ్ ఎక్కువగా ఉంది లేదా అప్‌డేట్ అవుతోంది. దయచేసి మళ్లీ ప్రయత్నించండి.");
             }
 
             const blob = await response.blob();
