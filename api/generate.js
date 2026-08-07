@@ -7,14 +7,14 @@ export default async function handler(req, res) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": Bearer ${process.env.HF_TOKEN}
+        "Authorization": `Bearer ${process.env.HF_TOKEN}`,
       },
       body: JSON.stringify({ inputs: prompttext })
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      throw new Error(Hugging Face Error: ${errorText});
+      throw new Error(`Hugging Face Error: ${errorText}`);
     }
 
     const buffer = Buffer.from(await (await response.blob()).arrayBuffer());
