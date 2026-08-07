@@ -1,33 +1,62 @@
-async function generatevideo() {
-    var prompttext = document.getElementById("prompt").value;
-    if(prompttext == "") {
-        alert("దయచేసి ప్రాంప్ట్ టెక్స్ట్ ఎంటర్ చేయండి!");
-        return;
-    }
+<!DOCTYPE html>
+<html lang="te">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Video Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #111827; color: white; text-align: center; padding: 20px; }
+        textarea { width: 80%; max-width: 500px; height: 100px; padding: 10px; border-radius: 8px; border: 1px solid #374151; background-color: #1f2937; color: white; font-size: 16px; }
+        button { background-color: #2dd4bf; color: #111827; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
+        button:hover { background-color: #14b8a6; }
+        #output { margin-top: 20px; font-size: 16px; }
+    </style>
+</head>
+<body>
 
-    var outputbox = document.getElementById("output");
+    <h2>🎥 నా AI వీడియో జనరేటర్</h2>
+    <p>మీకు కావలసిన వీడియో వివరాలను కింద టైప్ చేయండి:</p>
     
-    try {
-        outputbox.innerHTML = "⏳ సర్వర్ కి రిక్వెస్ట్ పంపబడింది... మీ వీడియో తయారవుతోంది (కొద్ది సెకన్లు పడుతుంది)...";
-        
-        const response = await fetch("/api/generate", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ prompttext: prompttext })
-        });
+    <textarea id="prompt" placeholder="ఉదాహరణకు: a beautiful waterfall in a forest..."></textarea><br>
+    <button onclick="generatevideo()">Generate Video</button>
 
-        if (!response.ok) {
-            throw new Error("సర్వర్ లో ఏదో తప్పు జరిగింది లేదా హగ్గింగ్ ఫేస్ మోడల్ బిజీగా ఉంది.");
+    <div id="output">మీ వీడియో ఇక్కడ కనిపిస్తుంది...</div>
+
+    <script>
+    async function generatevideo() {
+        var prompttext = document.getElementById("prompt").value;
+        if(prompttext == "") {
+            alert("దయచేసి ప్రాంప్ట్ టెక్స్ట్ ఎంటర్ చేయండి!");
+            return;
         }
 
-        const blob = await response.blob();
-        const videourl = URL.createObjectURL(blob);
+        var outputbox = document.getElementById("output");
+        
+        try {
+            outputbox.innerHTML = "⏳ సర్వర్ కి రిక్వెస్ట్ పంపబడింది... మీ వీడియో తయారవుతోంది (కొద్ది సెకన్లు పడుతుంది)...";
+            
+            const response = await fetch("/api/generate", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ prompttext: prompttext })
+            });
 
-        outputbox.innerHTML = "<video src='" + videourl + "' controls autoplay loop style='width:100%; max-width:500px; border-radius:8px;'></video><br><a href='" + videourl + "' download='ai_video.mp4' style='color:#2dd4bf; text-decoration:none; font-weight:bold; display:inline-block; margin-top:10px;'>📥 వీడియో డౌన్‌లోడ్ చేసుకోండి</a>";
+            if (!response.ok) {
+                throw new Error("సర్వర్ లో ఏదో తప్పు జరిగింది లేదా హగ్గింగ్ ఫేస్ మోడల్ బిజీగా ఉంది.");
+            }
 
-    } catch (error) {
-        outputbox.innerHTML = "❌ ఎర్రర్: " + error.message + "<br><br>మళ్ళీ ప్రయత్నించడానికి బటన్ నొక్కండి.";
+            const blob = await response.blob();
+            const videourl = URL.createObjectURL(blob);
+
+            outputbox.innerHTML = "<video src='" + videourl + "' controls autoplay loop style='width:100%; max-width:500px; border-radius:8px;'></video><br><a href='" + videourl + "' download='ai_video.mp4' style='color:#2dd4bf; text-decoration:none; font-weight:bold; display:inline-block; margin-top:10px;'>📥 వీడియో డౌన్‌లోడ్ చేసుకోండి</a>";
+
+        } catch (error) {
+            outputbox.innerHTML = "❌ ఎర్రర్: " + error.message + "<br><br>మళ్ళీ ప్రయత్నించడానికి బటన్ నొక్కండి.";
+        }
     }
-}
+    </script>
+
+</body>
+</html>
