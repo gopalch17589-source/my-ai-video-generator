@@ -3,38 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Video Generator</title>
+    <title>AI Video Generation Playground</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #111827; color: white; text-align: center; padding: 20px; }
-        textarea { width: 80%; max-width: 500px; height: 100px; padding: 10px; border-radius: 8px; border: 1px solid #374151; background-color: #1f2937; color: white; font-size: 16px; }
-        button { background-color: #2dd4bf; color: #111827; border: none; padding: 12px 24px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; margin-top: 10px; }
-        button:hover { background-color: #14b8a6; }
-        #output { margin-top: 20px; font-size: 16px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0b0f19; color: #f3f4f6; margin: 0; padding: 20px; display: flex; flex-direction: column; align-items: center; }
+        .container { width: 100%; max-width: 900px; background: #111827; border: 1px solid #1f2937; border-radius: 16px; padding: 24px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5); margin-top: 20px; }
+        h1 { font-size: 24px; font-weight: bold; margin-bottom: 5px; color: #ffffff; text-align: left; }
+        .subtitle { font-size: 14px; color: #9ca3af; margin-bottom: 25px; text-align: left; }
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+        @media (max-width: 768px) { .grid-layout { grid-template-columns: 1fr; } }
+        .left-panel { display: flex; flex-direction: column; gap: 20px; }
+        .right-panel { background: #1f2937; border: 2px dashed #374151; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 350px; padding: 20px; position: relative; }
+        label { font-size: 14px; font-weight: 600; color: #9ca3af; margin-bottom: 8px; display: block; }
+        select, textarea { width: 100%; background: #1f2937; border: 1px solid #374151; border-radius: 8px; color: white; padding: 12px; font-size: 14px; box-sizing: border-box; }
+        textarea { height: 120px; resize: none; }
+        .row-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .btn-generate { background-color: #2dd4bf; color: #0b0f19; border: none; padding: 14px; font-size: 16px; font-weight: bold; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 10px; transition: background 0.2s; }
+        .btn-generate:hover { background-color: #14b8a6; }
+        #output-video { width: 100%; max-width: 100%; border-radius: 8px; display: none; }
+        .status-text { color: #9ca3af; font-size: 14px; text-align: center; }
+        .download-btn { display: none; margin-top: 15px; color: #2dd4bf; text-decoration: none; font-weight: bold; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <h2>🎥 నా AI వీడియో జనరేటర్</h2>
-    <p>మీకు కావలసిన వీడియో వివరాలను కింద టైప్ చేయండి:</p>
-    
-    <textarea id="prompt" placeholder="ఉదాహరణకు: a beautiful waterfall in a forest..."></textarea><br>
-    <button onclick="generatevideo()">Generate Video</button>
+    <div class="container">
+        <h1>AI Video Generation Playground</h1>
+        <div class="subtitle">Powered by Vercel AI Gateway & Hugging Face</div>
+        
+        <div class="grid-layout">
+            <!-- ఎడమ వైపు సెట్టింగ్స్ ప్యానెల్ -->
+            <div class="left-panel">
+                <div>
+                    <label>🤖 AI Model</label>
+                    <select id="model-select">
+                        <option value="stabilityai">Stable Video Diffusion (XT)</option>
+                    </select>
+                </div>
 
-    <div id="output">మీ వీడియో ఇక్కడ కనిపిస్తుంది...</div>
+                <div>
+                    <label>📝 Prompt</label>
+                    <textarea id="prompt" placeholder="మీకు కావలసిన వీడియో వివరాలను ఇంగ్లీష్ లో రాయండి... (e.g. A golden retriever catching a frisbee on a sunny beach)"></textarea>
+                </div>
+
+                <div class="row-settings">
+                    <div>
+                        <label>📐 Ratio</label>
+                        <select id="ratio-select">
+                            <option value="16:9">16:9 (Widescreen)</option>
+                            <option value="9:16">9:16 (Vertical)</option>
+                            <option value="1:1">1:1 (Square)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>⏱️ Duration</label>
+                        <select id="duration-select">
+                            <option value="5s">5 Seconds</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="btn-generate" onclick="generatevideo()">✨ Generate Video</button>
+            </div>
+
+            <!-- కుడి వైపు వీడియో ప్రివ్యూ ప్యానెల్ -->
+            <div class="right-panel" id="preview-panel">
+                <div id="status-display" class="status-text">
+                    <h3>Ready to generate</h3>
+                    <p>Configure your settings, write a prompt, and hit Generate to create a video.</p>
+                </div>
+                <video id="output-video" controls autoplay loop></video>
+                <a id="download-link" class="download-btn" href="#" download="ai_video.mp4">📥 Download Video</a>
+            </div>
+        </div>
+    </div>
 
     <script>
     async function generatevideo() {
         var prompttext = document.getElementById("prompt").value;
-        if(prompttext == "") {
-            alert("దయచేసి ప్రాంప్ట్ టెక్స్ట్ ఎంటర్ చేయండి!");
+        if(prompttext.trim() == "") {
+           alert('దయచేసి ప్రాంప్ట్ టెక్స్ట్ ఎంటర్ చేయండి!');
             return;
         }
 
-        var outputbox = document.getElementById("output");
+        var statusDisplay = document.getElementById("status-display");
+        var outputVideo = document.getElementById("output-video");
+        var downloadLink = document.getElementById("download-link");
+        
+        // పాత వీడియోను దాచిపెట్టి లోడింగ్ చూపించడం
+        outputVideo.style.display = "none";
+        downloadLink.style.display = "none";
+        statusDisplay.style.display = "block";
+        statusDisplay.innerHTML = "<h3>⏳ Creating your video...</h3><p>సర్వర్ కి రిక్వెస్ట్ పంపబడింది. AI మోడల్ మీ వీడియోను తయారు చేస్తోంది, దయచేసి కొన్ని సెకన్లు వేచి ఉండండి...</p>";
         
         try {
-            outputbox.innerHTML = "⏳ సర్వర్ కి రిక్వెస్ట్ పంపబడింది... మీ వీడియో తయారవుతోంది (కొద్ది సెకన్లు పడుతుంది)...";
-            
             const response = await fetch("/api/generate", {
                 method: "POST",
                 headers: {
@@ -50,10 +111,16 @@
             const blob = await response.blob();
             const videourl = URL.createObjectURL(blob);
 
-            outputbox.innerHTML = "<video src='" + videourl + "' controls autoplay loop style='width:100%; max-width:500px; border-radius:8px;'></video><br><a href='" + videourl + "' download='ai_video.mp4' style='color:#2dd4bf; text-decoration:none; font-weight:bold; display:inline-block; margin-top:10px;'>📥 వీడియో డౌన్‌లోడ్ చేసుకోండి</a>";
+            // లోడింగ్ టెక్స్ట్ దాచి వీడియో చూపించడం
+            statusDisplay.style.display = "none";
+            outputVideo.src = videourl;
+            outputVideo.style.display = "block";
+            
+            downloadLink.href = videourl;
+            downloadLink.style.display = "inline-block";
 
         } catch (error) {
-            outputbox.innerHTML = "❌ ఎర్రర్: " + error.message + "<br><br>మళ్ళీ ప్రయత్నించడానికి బటన్ నొక్కండి.";
+            statusDisplay.innerHTML = "<h3 style='color: #ef4444;'>❌ ఎర్రర్ జరిగింది</h3><p>" + error.message + "</p>";
         }
     }
     </script>
