@@ -1,4 +1,4 @@
-import { InferenceClient } from "@huggingface/inference";
+import { Client, handle_file } from "@gradio/client";
 import Busboy from "busboy";
 
 export const config = {
@@ -32,34 +32,86 @@ export default async function handler(req, res) {
       });
     }
 
-    if (!process.env.HF_TOKEN) {
-      return res.status(500).json({
-        error: "HF_TOKEN is missing in Vercel Environment Variables.",
-      });
+    console.log("Connecting to Wan 2.2...");
+
+    const client = await Client.connect("kulkas2pintu/wan555");
+
+    const imageFile = handle_file(
+      new Blob([image.data], {
+        type: image.mimeType || "image/jpeg",
+      })
+    );
+
+    console.log("Generating video...");
+
+    const result = await client.predict("/generate_video", {
+      input_image: imageFile,
+      last_image: imageFile,
+
+      prompt: prompttext,
+
+      steps: 4,
+
+      negative_prompt:
+        "色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 畸形的, 毁容的, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走",
+
+      duration_seconds: 3.5,
+
+      guidance_scale: 1,
+      guidance_scale_2: 1,
+
+      seed: 42,
+      randomize_seed: true,
+
+      quality: 6,
+
+      scheduler: "UniPCMultistep",
+
+      flow_shift: 3,
+
+      frame_multiplier: "16",
+
+      video_component: true,
+
+      safe_mode: true,
+    });
+
+    console.log("Generation result:", result);
+
+    const videoResult = result?.data?.[0];
+
+    if (!videoResult) {
+      throw new Error("No video returned from Wan 2.2.");
     }
 
-    const client = new InferenceClient(process.env.HF_TOKEN);
+    let videoUrl = null;
 
-    const imageBlob = new Blob([image.data], {
-      type: image.mimeType || "image/jpeg",
-    });
+    if (typeof videoResult === "string") {
+      videoUrl = videoResult;
+    } else if (videoResult.url) {
+      videoUrl = videoResult.url;
+    } else if (videoResult.path) {
+      videoUrl = videoResult.path;
+    }
 
-    console.log("Starting video generation...");
+    if (!videoUrl) {
+      throw new Error("Could not find generated video URL.");
+    }
 
-    const video = await client.imageToVideo({
-      model: "Lightricks/LTX-Video-0.9.8-13B-distilled",
-      inputs: imageBlob,
-      prompt: prompttext,
-    });
+    const response = await fetch(videoUrl);
 
-    const buffer = Buffer.from(await video.arrayBuffer());
+    if (!response.ok) {
+      throw new Error("Failed to download generated video.");
+    }
+
+    const videoBuffer = Buffer.from(await response.arrayBuffer());
 
     res.setHeader("Content-Type", "video/mp4");
-    res.setHeader("Content-Length", buffer.length);
+    res.setHeader("Content-Length", videoBuffer.length);
 
-    return res.status(200).send(buffer);
+    return res.status(200).send(videoBuffer);
   } catch (error) {
-    console.error("VIDEO GENERATION ERROR:", error);
+    console.error("VIDEO ERROR:", error);
 
     return res.status(500).json({
       error: error?.message || "Video generation failed.",
