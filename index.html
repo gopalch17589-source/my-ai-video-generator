@@ -207,6 +207,50 @@
 
 </div>
 <!-- 🎙️ END VOICE BOX -->
+    <script>
+async function transcribeVoiceFile() {
+    const mediaInput = document.getElementById("voice-media");
+    const textBox = document.getElementById("voice-text");
+
+    if (!mediaInput.files.length) {
+        alert("ముందుగా Audio / Video file select చేయండి.");
+        return;
+    }
+
+    textBox.value = "⏳ Audio/Video processing...";
+
+    try {
+        const formData = new FormData();
+
+        formData.append("audio", mediaInput.files[0]);
+
+        const response = await fetch("/api/transcribe", {
+            method: "POST",
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (!response.ok) {
+            throw new Error(result.error || "Upload failed.");
+        }
+
+        textBox.value =
+            "✅ File received successfully.\n\n" +
+            "Filename: " + result.filename;
+
+    } catch (error) {
+        console.error("Transcription error:", error);
+
+        textBox.value =
+            "❌ Error: " + error.message;
+    }
+}
+
+document
+    .getElementById("voice-media")
+    .addEventListener("change", transcribeVoiceFile);
+</script>
 <script>
 async function generatevideo() {
 
