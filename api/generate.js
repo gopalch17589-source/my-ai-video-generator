@@ -1,3 +1,5 @@
+import { InferenceClient } from "@huggingface/inference";
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({
@@ -8,48 +10,31 @@ export default async function handler(req, res) {
   try {
     const { prompttext } = req.body;
 
-    if (!prompttext) {
+    if (!prompttext || prompttext.trim() === "") {
       return res.status(400).json({
         error: "Prompt is required"
       });
     }
 
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/stabilityai/stable-video-diffusion-img2vid-xt",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${process.env.HF_TOKEN}`,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          inputs: prompttext
-        })
-      }
-    );
+    const client = new InferenceClient(process.env.HF_TOKEN);
 
-    if (!response.ok) {
-      const errorText = await response.text();
+    const video = await client.textToVideo({
+      model: "Lightricks/LTX-Video-0.9.8-13B-distilled",
+      inputs: prompttext
+    });
 
-      console.error("Hugging Face Error:", errorText);
-
-      return res.status(response.status).json({
-        error: errorText
-      });
-    }
-
-    const arrayBuffer = await response.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
+    const buffer = Buffer.from(await video.arrayBuffer());
 
     res.setHeader("Content-Type", "video/mp4");
+    res.setHeader("Content-Length", buffer.length);
 
     return res.status(200).send(buffer);
 
   } catch (error) {
-    console.error("Server Error:", error);
+    console.error("Video generation error:", error);
 
     return res.status(500).json({
-      error: error.message
+      error: error.message || "Video generation failed"
     });
   }
 }
