@@ -69,7 +69,7 @@ export default async function handler(req, res) {
 
       flow_shift: 3,
 
-      frame_multiplier: "16",
+      frame_multiplier: 0,
 
       video_component: true,
 
