@@ -16,26 +16,19 @@ export default async function handler(req, res) {
   try {
     const form = await parseMultipart(req);
 
-    const audio = form.audio;
-
-    if (!audio) {
+    if (!form.audio) {
       return res.status(400).json({
         error: "Please upload an audio or video file.",
       });
     }
 
-    /*
-      Step 2:
-      File upload endpoint is ready.
-
-      Speech-to-text engine will be connected
-      in the next step.
-    */
-
+    // Temporary response.
+    // Speech-to-text engine will be connected next.
     return res.status(200).json({
       success: true,
-      message: "Audio / Video uploaded successfully.",
-      filename: audio.filename,
+      message: "Audio / Video received successfully.",
+      filename: form.audio.filename,
+      mimeType: form.audio.mimeType,
     });
 
   } catch (error) {
