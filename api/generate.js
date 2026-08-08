@@ -28,15 +28,21 @@ export default async function handler(req, res) {
 
     if (!image) {
       return res.status(400).json({
-        error: "Please upload an image. This model currently supports image-to-video."
+        error: "Please upload an image."
       });
     }
 
     const client = new InferenceClient(process.env.HF_TOKEN);
 
+    // Convert uploaded Buffer to Blob
+    const imageBlob = new Blob(
+      [image.data],
+      { type: image.mimeType || "image/jpeg" }
+    );
+
     const video = await client.imageToVideo({
       model: "Lightricks/LTX-Video-0.9.8-13B-distilled",
-      inputs: image,
+      inputs: imageBlob,
       prompt: prompttext
     });
 
@@ -86,7 +92,10 @@ function parseMultipart(req) {
       });
 
       file.on("end", () => {
-        result.image = Buffer.concat(chunks);
+        result.image = {
+          data: Buffer.concat(chunks),
+          mimeType: info.mimeType
+        };
       });
     });
 
