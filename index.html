@@ -27,71 +27,111 @@
 <body>
 
     <div class="container">
-        <h1>AI Video Generation Playground</h1>
-        <div class="subtitle">Powered by Vercel AI Gateway & Hugging Face</div>
-        
-        <div class="grid-layout">
-            <!-- ఎడమ వైపు సెట్టింగ్స్ ప్యానెల్ -->
-            <div class="left-panel">
+    <h1>AI Video Generation Playground</h1>
+    <div class="subtitle">Powered by Vercel AI Gateway & Hugging Face</div>
+
+    <div class="grid-layout">
+
+        <!-- LEFT PANEL -->
+        <div class="left-panel">
+
+            <div>
+                <label>🤖 AI Model</label>
+                <select id="model-select">
+                    <option value="stabilityai">Stable Video Diffusion (XT)</option>
+                </select>
+            </div>
+
+            <div>
+                <label>📝 Prompt</label>
+                <textarea
+                    id="prompt"
+                    placeholder="మీకు కావలసిన వీడియో వివరాలను ఇంగ్లీష్ లో రాయండి..."
+                ></textarea>
+            </div>
+
+            <div>
+                <label>🖼️ Input Image (Optional)</label>
+                <input
+                    type="file"
+                    id="image-input"
+                    accept="image/png,image/jpeg,image/webp"
+                >
+                <small>
+                    Image upload చేస్తే Image + Prompt → Video.
+                    Image upload చేయకపోతే Text → Video.
+                </small>
+            </div>
+
+            <div class="row-settings">
+
                 <div>
-                    <label>🤖 AI Model</label>
-                    <select id="model-select">
-                        <option value="stabilityai">Stable Video Diffusion (XT)</option>
+                    <label>📐 Ratio</label>
+                    <select id="ratio-select">
+                        <option value="16:9">16:9 (Widescreen)</option>
+                        <option value="9:16">9:16 (Vertical)</option>
+                        <option value="1:1">1:1 (Square)</option>
                     </select>
                 </div>
 
                 <div>
-                    <label>📝 Prompt</label>
-                    <textarea id="prompt" placeholder="మీకు కావలసిన వీడియో వివరాలను ఇంగ్లీష్ లో రాయండి... (e.g. A golden retriever catching a frisbee on a sunny beach)"></textarea>
-                </div>
-                   <div>
-    <label>🖼️ Input Image (Optional)</label>
-    <input
-        type="file"
-        id="image-input"
-        accept="image/png,image/jpeg,image/webp"
-    >
-    <small>
-        Image upload చేస్తే Image + Prompt → Video.
-        Image upload చేయకపోతే Text → Video.
-    </small>
-</div>
-                <div class="row-settings">
-                    <div>
-                        <label>📐 Ratio</label>
-                        <select id="ratio-select">
-                            <option value="16:9">16:9 (Widescreen)</option>
-                            <option value="9:16">9:16 (Vertical)</option>
-                            <option value="1:1">1:1 (Square)</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>⏱️ Duration</label>
-                        <select id="duration-select">
-                            <option value="5s">5 Seconds</option>
-                        </select>
-                    </div>
+                    <label>⏱️ Duration</label>
+                    <select id="duration-select">
+                        <option value="4">4 Seconds</option>
+                        <option value="5" selected>5 Seconds</option>
+                        <option value="10">10 Seconds</option>
+                    </select>
                 </div>
 
-                <button class="btn-generate" onclick="generatevideo()">✨ Generate Video</button>
             </div>
 
-            <!-- కుడి వైపు వీడియో ప్రివ్యూ ప్యానెల్ -->
-            <div class="right-panel" id="preview-panel">
-                <div id="status-display" class="status-text">
-                    <h3>Ready to generate</h3>
-                    <p>Configure your settings, write a prompt, and hit Generate to create a video.</p>
-                </div>
-                <video id="output-video" controls autoplay loop></video>
-                <a id="download-link" class="download-btn" href="#" download="ai_video.mp4">📥 Download Video</a>
-            </div>
+            <button
+                class="btn-generate"
+                onclick="generatevideo()"
+            >
+                ✨ Generate Video
+            </button>
+
         </div>
-    </div>
 
-    <script>
+        <!-- RIGHT PANEL -->
+        <div class="right-panel" id="preview-panel">
+
+            <div id="status-display" class="status-text">
+                <h3>Ready to generate</h3>
+                <p>
+                    Configure your settings, write a prompt,
+                    and hit Generate to create a video.
+                </p>
+            </div>
+
+            <video
+                id="output-video"
+                controls
+                autoplay
+                loop
+            ></video>
+
+            <a
+                id="download-link"
+                class="download-btn"
+                href="#"
+                download="ai_video.mp4"
+            >
+                📥 Download Video
+            </a>
+
+        </div>
+      </div>
+
+</div>
+
+<script>
 async function generatevideo() {
+
     var prompttext = document.getElementById("prompt").value;
     var imageInput = document.getElementById("image-input");
+    var duration = document.getElementById("duration-select").value;
 
     if (prompttext.trim() === "") {
         alert("దయచేసి ప్రాంప్ట్ టెక్స్ట్ ఎంటర్ చేయండి!");
@@ -111,9 +151,11 @@ async function generatevideo() {
         "<p>AI వీడియో తయారు చేస్తోంది. దయచేసి వేచి ఉండండి...</p>";
 
     try {
+
         var formData = new FormData();
 
         formData.append("prompttext", prompttext);
+        formData.append("duration", duration);
 
         if (imageInput.files.length > 0) {
             formData.append("image", imageInput.files[0]);
@@ -141,7 +183,10 @@ async function generatevideo() {
         downloadLink.style.display = "inline-block";
 
     } catch (error) {
-        console.error(error);
+
+        console.error("Video generation error:", error);
+
+        statusDisplay.style.display = "block";
 
         statusDisplay.innerHTML =
             "<h3 style='color: #ef4444;'>❌ ఎర్రర్ జరిగింది</h3>" +
@@ -149,6 +194,3 @@ async function generatevideo() {
     }
 }
 </script>
-
-</body>
-</html>
