@@ -125,7 +125,88 @@
       </div>
 
 </div>
+    <!-- 🎙️ VOICE BOX -->
+<div class="voice-box">
 
+    <h2>🎙️ AI Voice Generator</h2>
+
+    <p>
+        Audio / Video upload చేసి speechని textగా మార్చి,
+        Male లేదా Female voiceలో కొత్త audio తయారు చేసుకోండి.
+    </p>
+
+    <label>🎧 Upload Audio / Video</label>
+    <input
+        type="file"
+        id="voice-media"
+        accept="audio/*,video/*"
+    >
+
+    <label>📝 Extracted / Editable Text</label>
+    <textarea
+        id="voice-text"
+        rows="6"
+        placeholder="Audio / Video upload చేసిన తర్వాత text ఇక్కడ వస్తుంది..."
+    ></textarea>
+
+    <div class="row-settings">
+
+        <div>
+            <label>🌐 Language</label>
+            <select id="voice-language">
+                <option value="te-IN">🇮🇳 Telugu</option>
+                <option value="hi-IN">🇮🇳 Hindi</option>
+                <option value="ta-IN">🇮🇳 Tamil</option>
+                <option value="kn-IN">🇮🇳 Kannada</option>
+                <option value="ml-IN">🇮🇳 Malayalam</option>
+                <option value="bn-IN">🇮🇳 Bengali</option>
+                <option value="mr-IN">🇮🇳 Marathi</option>
+                <option value="gu-IN">🇮🇳 Gujarati</option>
+                <option value="pa-IN">🇮🇳 Punjabi</option>
+                <option value="en-IN">🇬🇧 English</option>
+            </select>
+        </div>
+
+        <div>
+            <label>🎤 Voice</label>
+            <select id="voice-gender">
+                <option value="female">👩 Female</option>
+                <option value="male">👨 Male</option>
+            </select>
+        </div>
+
+    </div>
+
+    <button
+        class="btn-generate"
+        type="button"
+        onclick="generateVoice()"
+    >
+        🎙️ Generate Voice
+    </button>
+
+    <div id="voice-status" class="status-text">
+        <p>Ready</p>
+    </div>
+
+    <audio
+        id="voice-output"
+        controls
+        style="display:none; width:100%; margin-top:15px;"
+    ></audio>
+
+    <a
+        id="voice-download"
+        class="download-btn"
+        href="#"
+        download="generated_voice.wav"
+        style="display:none;"
+    >
+        📥 Download Voice
+    </a>
+
+</div>
+<!-- 🎙️ END VOICE BOX -->
 <script>
 async function generatevideo() {
 
