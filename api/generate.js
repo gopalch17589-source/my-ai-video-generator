@@ -1,4 +1,11 @@
 import { InferenceClient } from "@huggingface/inference";
+import Busboy from "busboy";
+
+export const config = {
+  api: {
+    bodyParser: false
+  }
+};
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -8,7 +15,10 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { prompttext } = req.body;
+    const form = await parseMultipart(req);
+
+    const prompttext = form.prompttext;
+    const image = form.image;
 
     if (!prompttext || prompttext.trim() === "") {
       return res.status(400).json({
@@ -16,11 +26,18 @@ export default async function handler(req, res) {
       });
     }
 
+    if (!image) {
+      return res.status(400).json({
+        error: "Please upload an image. This model currently supports image-to-video."
+      });
+    }
+
     const client = new InferenceClient(process.env.HF_TOKEN);
 
-    const video = await client.textToVideo({
+    const video = await client.imageToVideo({
       model: "Lightricks/LTX-Video-0.9.8-13B-distilled",
-      inputs: prompttext
+      inputs: image,
+      prompt: prompttext
     });
 
     const buffer = Buffer.from(await video.arrayBuffer());
@@ -37,4 +54,48 @@ export default async function handler(req, res) {
       error: error.message || "Video generation failed"
     });
   }
+}
+
+function parseMultipart(req) {
+  return new Promise((resolve, reject) => {
+    const busboy = Busboy({
+      headers: req.headers
+    });
+
+    const result = {
+      prompttext: "",
+      image: null
+    };
+
+    busboy.on("field", (name, value) => {
+      if (name === "prompttext") {
+        result.prompttext = value;
+      }
+    });
+
+    busboy.on("file", (name, file, info) => {
+      if (name !== "image") {
+        file.resume();
+        return;
+      }
+
+      const chunks = [];
+
+      file.on("data", (chunk) => {
+        chunks.push(chunk);
+      });
+
+      file.on("end", () => {
+        result.image = Buffer.concat(chunks);
+      });
+    });
+
+    busboy.on("finish", () => {
+      resolve(result);
+    });
+
+    busboy.on("error", reject);
+
+    req.pipe(busboy);
+  });
 }
