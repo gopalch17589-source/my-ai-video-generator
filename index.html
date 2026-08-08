@@ -148,7 +148,7 @@
 >
     📝 Convert Speech to Text
 </button> 
-    
+      
     <label>📝 Extracted / Editable Text</label>
     <textarea
         id="voice-text"
@@ -257,6 +257,10 @@ async function transcribeVoiceFile() {
 document
     .getElementById("voice-media")
     .addEventListener("change", transcribeVoiceFile);
+
+document
+    .getElementById("transcribe-button")
+    .addEventListener("click", transcribeVoiceFile);
 </script>
 <script>
 async function generatevideo() {
