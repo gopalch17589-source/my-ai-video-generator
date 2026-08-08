@@ -65,7 +65,7 @@ export default async function handler(req, res) {
 
     console.log("Generation result:", result);
 
-    const videoResult = result?.data?.[0];
+    const videoResult = result?.data?.[1];
 
     if (!videoResult) {
       throw new Error("No video returned from Wan 2.2.");
