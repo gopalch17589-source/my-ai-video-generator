@@ -44,37 +44,24 @@ export default async function handler(req, res) {
 
     console.log("Generating video...");
 
-    const result = await client.predict("/generate_video", {
-      input_image: imageFile,
-      last_image: imageFile,
-
-      prompt: prompttext,
-
-      steps: 4,
-
-      negative_prompt:
-        "色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 畸形的, 毁容的, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走",
-
-      duration_seconds: 3.5,
-
-      guidance_scale: 1,
-      guidance_scale_2: 1,
-
-      seed: 42,
-      randomize_seed: true,
-
-      quality: 6,
-
-      scheduler: "UniPCMultistep",
-
-      flow_shift: 3,
-
-      frame_multiplier: "16",
-
-      video_component: true,
-
-      safe_mode: true,
-    });
+    const result = await client.predict("/generate_video", [
+    imageFile,
+    imageFile,
+    prompttext,
+    4,
+    "色调艳丽, 过曝, 静态, 细节模糊不清, 字幕, 风格, 作品, 画作, 画面, 静止, 整体发灰, 最差质量, 低质量, JPEG压缩残留, 丑陋的, 残缺的, 多余的手指, 畸形的, 毁容的, 静止不动的画面, 杂乱的背景, 三条腿, 背景人很多, 倒着走",
+    3.5,
+    1,
+    1,
+    42,
+    true,
+    6,
+    "UniPCMultistep",
+    3,
+    16,
+    true,
+    true
+   ]);
 
     console.log("Generation result:", result);
 
