@@ -261,13 +261,17 @@ textBox.value =
         "❌ Error: " + error.message;
 }
 
-document
-    .getElementById("voice-media")
-    .addEventListener("change", transcribeVoiceFile);
+window.addEventListener("DOMContentLoaded", function () {
 
-document
-    .getElementById("transcribe-button")
-    .addEventListener("click", transcribeVoiceFile);
+    document
+        .getElementById("voice-media")
+        .addEventListener("change", transcribeVoiceFile);
+
+    document
+        .getElementById("transcribe-button")
+        .addEventListener("click", transcribeVoiceFile);
+
+});
 </script>
 <script>
 async function generatevideo() {
