@@ -57,8 +57,8 @@ export default async function handler(req, res) {
       {
         method: "POST",
         headers: {
-          "api-subscription-key": process.env.SARVAM_API_KEY,
-        },
+      "api-subscription-key": process.env.SARVAM_API_KEY.trim(),
+     },
         body: formData,
       }
     );
