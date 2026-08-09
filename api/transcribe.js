@@ -1,3 +1,4 @@
+import { InferenceClient } from "@huggingface/inference";
 import Busboy from "busboy";
 
 export const config = {
@@ -14,6 +15,12 @@ export default async function handler(req, res) {
   }
 
   try {
+    if (!process.env.HF_TOKEN) {
+      return res.status(500).json({
+        error: "HF_TOKEN is missing in Vercel.",
+      });
+    }
+
     const form = await parseMultipart(req);
 
     if (!form.audio) {
@@ -22,20 +29,35 @@ export default async function handler(req, res) {
       });
     }
 
-    // Temporary response.
-    // Speech-to-text engine will be connected next.
+    console.log("Starting speech recognition...");
+
+    const client = new InferenceClient(process.env.HF_TOKEN);
+
+    const audioBlob = new Blob(
+      [form.audio.data],
+      {
+        type: form.audio.mimeType || "audio/mpeg",
+      }
+    );
+
+    const result = await client.automaticSpeechRecognition({
+      model: "openai/whisper-large-v3",
+      data: audioBlob,
+    });
+
+    console.log("Transcription result:", result);
+
     return res.status(200).json({
       success: true,
-      message: "Audio / Video received successfully.",
+      text: result.text || "",
       filename: form.audio.filename,
-      mimeType: form.audio.mimeType,
     });
 
   } catch (error) {
     console.error("TRANSCRIBE ERROR:", error);
 
     return res.status(500).json({
-      error: error?.message || "Transcription failed.",
+      error: error?.message || "Speech recognition failed.",
     });
   }
 }
