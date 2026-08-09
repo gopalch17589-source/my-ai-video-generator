@@ -232,26 +232,33 @@ async function transcribeVoiceFile() {
         formData.append("audio", mediaInput.files[0]);
 
         const response = await fetch("/api/transcribe", {
-            method: "POST",
-            body: formData
-        });
+    method: "POST",
+    body: formData
+});
 
-        const result = await response.json();
+const responseText = await response.text();
 
-        if (!response.ok) {
-            throw new Error(result.error || "Upload failed.");
-        }
+if (!response.ok) {
+    throw new Error(responseText || "Upload failed.");
+}
 
-        textBox.value =
-            "✅ File received successfully.\n\n" +
-            "Filename: " + result.filename;
+let result;
 
-    } catch (error) {
-        console.error("Transcription error:", error);
+try {
+    result = JSON.parse(responseText);
+} catch (e) {
+    throw new Error(responseText || "Invalid server response.");
+}
 
-        textBox.value =
-            "❌ Error: " + error.message;
-    }
+textBox.value =
+    "✅ Transcription complete!\n\n" +
+    (result.text || "No speech detected.");
+
+} catch (error) {
+    console.error("Transcription error:", error);
+
+    textBox.value =
+        "❌ Error: " + error.message;
 }
 
 document
