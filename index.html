@@ -217,10 +217,7 @@
     📥 Download Voice
 </a>
 
-</div>
-
-<!-- 🎙️ END VOICE BOX -->
-    <script>
+<script>
 async function transcribeVoiceFile() {
     const mediaInput = document.getElementById("voice-media");
     const textBox = document.getElementById("voice-text");
@@ -238,33 +235,36 @@ async function transcribeVoiceFile() {
         formData.append("audio", mediaInput.files[0]);
 
         const response = await fetch("/api/transcribe", {
-    method: "POST",
-    body: formData
-});
+            method: "POST",
+            body: formData
+        });
 
-const responseText = await response.text();
+        const responseText = await response.text();
 
-if (!response.ok) {
-    throw new Error(responseText || "Upload failed.");
-}
+        if (!response.ok) {
+            throw new Error(responseText || "Upload failed.");
+        }
 
-let result;
+        let result;
 
-try {
-    result = JSON.parse(responseText);
-} catch (e) {
-    throw new Error(responseText || "Invalid server response.");
-}
+        try {
+            result = JSON.parse(responseText);
+        } catch (e) {
+            throw new Error(
+                responseText || "Invalid server response."
+            );
+        }
 
-textBox.value =
-    "✅ Transcription complete!\n\n" +
-    (result.text || "No speech detected.");
+        textBox.value =
+            "✅ Transcription complete!\n\n" +
+            (result.text || "No speech detected.");
 
-} catch (error) {
-    console.error("Transcription error:", error);
+    } catch (error) {
+        console.error("Transcription error:", error);
 
-    textBox.value =
-        "❌ Error: " + error.message;
+        textBox.value =
+            "❌ Error: " + error.message;
+    }
 }
 
 window.addEventListener("DOMContentLoaded", function () {
