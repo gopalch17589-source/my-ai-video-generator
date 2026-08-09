@@ -1,4 +1,3 @@
-import { InferenceClient } from "@huggingface/inference";
 import Busboy from "busboy";
 
 export const config = {
@@ -15,9 +14,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    if (!process.env.HF_TOKEN) {
+    if (!process.env.SARVAM_API_KEY) {
       return res.status(500).json({
-        error: "HF_TOKEN is missing in Vercel.",
+        error: "SARVAM_API_KEY is missing in Vercel.",
       });
     }
 
@@ -29,10 +28,6 @@ export default async function handler(req, res) {
       });
     }
 
-    console.log("Starting speech recognition...");
-
-    const client = new InferenceClient(process.env.HF_TOKEN);
-
     const audioBlob = new Blob(
       [form.audio.data],
       {
@@ -40,16 +35,51 @@ export default async function handler(req, res) {
       }
     );
 
-    const result = await client.automaticSpeechRecognition({
-      model: "openai/whisper-large-v3",
-      data: audioBlob,
-    });
+    const formData = new FormData();
 
-    console.log("Transcription result:", result);
+    formData.append(
+      "file",
+      audioBlob,
+      form.audio.filename || "audio.mp3"
+    );
+
+    formData.append("model", "saaras:v2.5");
+
+    const response = await fetch(
+      "https://api.sarvam.ai/speech-to-text",
+      {
+        method: "POST",
+        headers: {
+          "api-subscription-key": process.env.SARVAM_API_KEY,
+        },
+        body: formData,
+      }
+    );
+
+    const responseText = await response.text();
+
+    if (!response.ok) {
+      console.error("SARVAM ERROR:", responseText);
+
+      return res.status(response.status).json({
+        error: responseText,
+      });
+    }
+
+    let result;
+
+    try {
+      result = JSON.parse(responseText);
+    } catch {
+      return res.status(500).json({
+        error: "Invalid response from Sarvam.",
+        raw: responseText,
+      });
+    }
 
     return res.status(200).json({
       success: true,
-      text: result.text || "",
+      text: result.transcript || "",
       filename: form.audio.filename,
     });
 
@@ -57,7 +87,7 @@ export default async function handler(req, res) {
     console.error("TRANSCRIBE ERROR:", error);
 
     return res.status(500).json({
-      error: error?.message || "Speech recognition failed.",
+      error: error?.message || "Transcription failed.",
     });
   }
 }
