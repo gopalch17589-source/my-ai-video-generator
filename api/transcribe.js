@@ -28,6 +28,13 @@ export default async function handler(req, res) {
       });
     }
 
+    console.log(
+  "SARVAM KEY CHECK:",
+  process.env.SARVAM_API_KEY
+    ? "KEY EXISTS"
+    : "KEY MISSING"
+); 
+    
     const audioBlob = new Blob(
       [form.audio.data],
       {
