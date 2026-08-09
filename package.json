@@ -2,6 +2,7 @@
   "type": "module",
   "dependencies": {
     "@gradio/client": "^1.0.0",
+    "@huggingface/inference": "^4.13.0",
     "busboy": "^1.6.0"
   }
 }
