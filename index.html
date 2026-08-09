@@ -201,7 +201,7 @@
     <p>Ready</p>
 </div>
 
-<audio
+    <audio
     id="voice-output"
     controls
     style="display:none; width:100%; margin-top:15px;"
@@ -231,7 +231,6 @@ async function transcribeVoiceFile() {
 
     try {
         const formData = new FormData();
-
         formData.append("audio", mediaInput.files[0]);
 
         const response = await fetch("/api/transcribe", {
@@ -250,9 +249,7 @@ async function transcribeVoiceFile() {
         try {
             result = JSON.parse(responseText);
         } catch (e) {
-            throw new Error(
-                responseText || "Invalid server response."
-            );
+            throw new Error(responseText || "Invalid server response.");
         }
 
         textBox.value =
